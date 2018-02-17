@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
-$:.unshift File.expand_path('../lib', __dir__)
 
-puts "hello"
+$:.unshift File.expand_path('../lib', __dir__)
+require 'ruby/builder/cli'
+
+Ruby::Builder::CLI.start(ARGV)

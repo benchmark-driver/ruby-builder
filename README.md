@@ -12,7 +12,16 @@ $ gem install ruby-builder
 
 ## Usage
 
-TBD
+```
+$ ruby-builder
+Commands:
+  ruby-builder help [COMMAND]           # Describe available commands or one specific command
+  ruby-builder revision rXXXXX..rXXXXX  # Build ruby binaries per revision
+
+Options:
+  -d, [--source-directory=SOURCE_DIRECTORY]
+
+```
 
 ## License
 
