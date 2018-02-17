@@ -10,7 +10,19 @@ module Ruby
 
       # @param [String] version
       def directory(version)
-        require "pry";binding.pry
+        File.join(rbenv_root, 'versions', version)
+      end
+
+      private
+
+      def rbenv_root
+        return @rbenv_root if defined?(@rbenv_root)
+
+        @rbenv_root = IO.popen(['rbenv', 'root'], &:read).rstrip
+        unless $?.success?
+          abort "Failed to execute (exit status: #{$?}): rbenv root"
+        end
+        @rbenv_root
       end
     end
   end

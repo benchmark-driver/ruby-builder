@@ -12,15 +12,17 @@ module Ruby
       desc 'revision rXXXXX..rXXXXX', 'Build ruby binaries per revision'
       def revision(spec)
         source_dir = File.expand_path(options.fetch(:source_directory, Dir.pwd))
-        revisions = RevisionParser.parse(spec, source_dir: source_dir)
+
+        logger.info "Parsing revisions at '#{source_dir}'..."
+        revisions = RevisionParser.new(source_dir).parse(spec)
 
         if revisions.empty?
-          logger.error "No revisions found for: #{spec}"
+          logger.error "No revisions found for '#{spec}' in: #{source_dir}"
           exit 1
         end
 
-        logger.info "Source directory: #{source_dir}"
-        revisions.each do |revision|
+        logger.info "Starting to build #{spec} (#{revisions.size} revisions) from '#{source_dir}'"
+        revisions.each_with_index do |revision, i|
           if Rbenv.installed?(revision.name)
             logger.info "Skipped to install #{revision.name}: already installed"
             next
@@ -28,7 +30,7 @@ module Ruby
 
           install_dir = Rbenv.directory(revision.name)
           RubyBuilder.build(revision, install_dir: install_dir)
-          logger.info "Succeeded to install #{revision.name}: #{install_dir}"
+          logger.info "Succeeded to install #{revision.name} (#{i + 1}/#{revisions.size}): #{install_dir}"
         end
       end
 
