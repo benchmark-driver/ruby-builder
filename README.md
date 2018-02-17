@@ -1,6 +1,6 @@
 # ruby-builder
 
-Build ruby binaries under rbenv directory
+Build ruby binaries per revision under rbenv directory
 
 ## Installation
 

@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Takashi Kokubun']
   spec.email         = ['takashikkbn@gmail.com']
 
-  spec.summary       = %q{Build ruby binaries under rbenv directory}
-  spec.description   = %q{Build ruby binaries under rbenv directory}
+  spec.summary       = %q{Build ruby binaries per revision under rbenv directory}
+  spec.description   = %q{Build ruby binaries per revision under rbenv directory}
   spec.homepage      = 'https://github.com/benchmark-driver/ruby-builder'
   spec.license       = 'MIT'
 
