@@ -16,6 +16,13 @@ module Ruby
         unless File.executable?(File.join(source_dir, 'configure'))
           execute('autoreconf', dir: source_dir)
         end
+
+        # Workaround to force updating revision in RUBY_DESCRIPTION
+        timestamp_file = File.join(build_dir, '.revision.time')
+        if File.exist?(timestamp_file)
+          execute('rm', timestamp_file)
+        end
+
         execute(File.join(source_dir, 'configure'), '--disable-install-doc', "--prefix=#{install_dir}", dir: build_dir)
         execute('make', "-j#{Etc.nprocessors}", dir: build_dir)
         execute('make', 'install', dir: build_dir)
