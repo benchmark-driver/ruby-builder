@@ -35,18 +35,19 @@ module Ruby
       def execute(*command, dir: nil)
         if dir
           Dir.chdir(dir) do
-            assert_execute(*command)
+            assert_execute(*command, dir: dir)
           end
         else
-          assert_execute(*command)
+          assert_execute(*command, dir: dir)
         end
       end
 
       # @param [Array<String>] command
-      def assert_execute(*command)
+      def assert_execute(*command, dir:)
         logger.info("+ #{command.shelljoin}")
         unless system(command.shelljoin)
-          raise BuildFailure.new("Failed to execute '#{command.shelljoin}' at '#{dir}' (exit status: #{$?.exitstatus})")
+          dir_info = "at '#{dir}' " if dir
+          raise BuildFailure.new("Failed to execute '#{command.shelljoin}' #{dir_info}(exit status: #{$?.exitstatus})")
         end
       end
 
