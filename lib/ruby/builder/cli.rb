@@ -22,19 +22,49 @@ module Ruby
         end
 
         logger.info "Starting to build #{spec} (#{revisions.size} revisions) from '#{source_dir}'"
-        revisions.each_with_index do |revision, i|
-          if Rbenv.installed?(revision.name)
-            logger.info "Skipped to install #{revision.name}: already installed"
-            next
+        Dir.mktmpdir("ruby-builder-") do |build_dir|
+          preserve_revision(source_dir) do
+            build_revisions(revisions, source_dir: source_dir, build_dir: build_dir)
           end
-
-          install_dir = Rbenv.directory(revision.name)
-          RubyBuilder.build(revision, install_dir: install_dir)
-          logger.info "Succeeded to install #{revision.name} (#{i + 1}/#{revisions.size}): #{install_dir}"
         end
       end
 
       private
+
+      def build_revisions(revisions, source_dir:, build_dir:)
+        revisions.each_with_index do |revision, i|
+          if Rbenv.installed?(revision.name)
+            logger.info "Skipped to install #{revision.name} (#{i + 1}/#{revisions.size}): already installed"
+            next
+          end
+
+          install_dir = Rbenv.directory(revision.name)
+          begin
+            RubyBuilder.build(revision, source_dir: source_dir, build_dir: build_dir, install_dir: install_dir)
+          rescue BuildFailure => e
+            logger.error "Failed to install #{revision.name} (#{i + 1}/#{revisions.size}): #{e.class}: #{e.message}"
+          else
+            logger.info "Succeeded to install #{revision.name} (#{i + 1}/#{revisions.size}) to '#{install_dir}'"
+          end
+        end
+      end
+
+      def preserve_revision(source_dir, &block)
+        command = ['git', '-C', source_dir, 'rev-parse', '--abbrev-ref', 'HEAD']
+        orig_rev = IO.popen(command, &:read).rstrip
+        unless $?.success?
+          abort "Failed to execute '#{command.shelljoin}'"
+        end
+        block.call
+      ensure
+        if orig_rev
+          checkout_cmd = ['git', '-C', source_dir, 'checkout', orig_rev].shelljoin
+          logger.info("+ #{checkout_cmd}")
+          unless system(checkout_cmd)
+            abort "Failed to execute '#{checkout_cmd}'"
+          end
+        end
+      end
 
       def logger
         @logger ||= Logger.new(STDOUT)
