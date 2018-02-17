@@ -1,7 +1,2 @@
-require "ruby/builder/version"
-
-module Ruby
-  module Builder
-    # Your code goes here...
-  end
-end
+require 'ruby/builder/cli'
+require 'ruby/builder/version'
