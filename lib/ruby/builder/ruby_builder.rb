@@ -12,7 +12,7 @@ module Ruby
       # @param [String] build_dir
       # @param [String] install_dir
       def build(revision, source_dir:, build_dir:, install_dir:)
-        execute('git', 'checkout', revision.git, dir: source_dir)
+        execute('git', '-C', source_dir, 'checkout', revision.git)
         unless File.executable?(File.join(source_dir, 'configure'))
           execute('autoreconf', dir: source_dir)
         end
@@ -32,12 +32,21 @@ module Ruby
 
       # @param [Array<String>] command
       # @param [String] dir
-      def execute(*command, dir:)
-        Dir.chdir(dir) do
-          logger.info("+ #{command.shelljoin}")
-          unless system(command.shelljoin)
-            raise BuildFailure.new("Failed to execute '#{command.shelljoin}' at '#{dir}' (exit status: #{$?.exitstatus})")
+      def execute(*command, dir: nil)
+        if dir
+          Dir.chdir(dir) do
+            assert_execute(*command)
           end
+        else
+          assert_execute(*command)
+        end
+      end
+
+      # @param [Array<String>] command
+      def assert_execute(*command)
+        logger.info("+ #{command.shelljoin}")
+        unless system(command.shelljoin)
+          raise BuildFailure.new("Failed to execute '#{command.shelljoin}' at '#{dir}' (exit status: #{$?.exitstatus})")
         end
       end
 
