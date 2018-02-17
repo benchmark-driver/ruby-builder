@@ -1,4 +1,8 @@
 # CHANGELOG
+## v0.1.3
+
+* Fix undefined variable error on command execution failure
+
 ## v0.1.2
 
 * Fix timestamp file removal bug in v0.1.1
